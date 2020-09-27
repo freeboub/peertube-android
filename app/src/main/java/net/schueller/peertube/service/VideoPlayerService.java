@@ -45,6 +45,7 @@ import android.widget.Toast;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -52,6 +53,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -98,7 +100,7 @@ public class VideoPlayerService extends Service {
 
         super.onCreate();
 
-        player = ExoPlayerFactory.newSimpleInstance(getApplicationContext(), new DefaultTrackSelector());
+        player = new SimpleExoPlayer.Builder( this).build(); // ExoPlayerFactory.newSimpleInstance(getApplicationContext(), new DefaultTrackSelector());
 
         // Stop player if audio device changes, e.g. headphones unplugged
         player.addListener(new Player.EventListener() {
@@ -212,9 +214,10 @@ public class VideoPlayerService extends Service {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getApplicationContext(),
                 Util.getUserAgent(getApplicationContext(), "PeerTube"), null);
 
+        MediaItem item = MediaItem.fromUri( currentStreamUrl );
         // This is the MediaSource representing the media to be played.
-        ExtractorMediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(Uri.parse(currentStreamUrl));
+        ProgressiveMediaSource videoSource = new ProgressiveMediaSource.Factory( dataSourceFactory)
+                .createMediaSource(item);
 
         // Prepare the player with the source.
         player.prepare(videoSource);
@@ -226,7 +229,7 @@ public class VideoPlayerService extends Service {
         this.setPlayBackSpeed(1.0f);
 
         playerNotificationManager = PlayerNotificationManager.createWithNotificationChannel(
-                context, PLAYBACK_CHANNEL_ID, R.string.playback_channel_name,
+                context, PLAYBACK_CHANNEL_ID, R.string.playback_channel_name, R.string.playback_channel_description,
                 PLAYBACK_NOTIFICATION_ID,
                 new PlayerNotificationManager.MediaDescriptionAdapter() {
 
