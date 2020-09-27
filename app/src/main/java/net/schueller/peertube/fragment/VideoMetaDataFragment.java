@@ -246,7 +246,7 @@ public class VideoMetaDataFragment extends Fragment {
 
         videoOptions.setOnClickListener(v -> {
             VideoOptionsFragment videoOptionsFragment =
-                    VideoOptionsFragment.newInstance(mService, video.getFiles());
+                    VideoOptionsFragment.newInstance(mService, video.getFilesOrStreamingPlaylistFiles());
             videoOptionsFragment.show(getActivity().getSupportFragmentManager(),
                     VideoOptionsFragment.TAG);
         });

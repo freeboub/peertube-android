@@ -65,6 +65,7 @@ public class Video {
 
     private Boolean commentsEnabled;
     private ArrayList<File> files;
+    private ArrayList<StreamingPlaylists> streamingPlaylists;
 
     public Video() {
 
@@ -273,6 +274,16 @@ public class Video {
     public ArrayList<File> getFiles() {
         return files;
     }
+    public ArrayList<StreamingPlaylists> getStreamingPlaylist() {
+        return streamingPlaylists;
+    }
+
+    public ArrayList<File> getFilesOrStreamingPlaylistFiles() {
+        if (files.size() == 0 && streamingPlaylists.size() > 0)
+            return streamingPlaylists.get(0).getFiles();
+        return files;
+    }
+
 
     public void setFiles(ArrayList<File> files) {
         this.files = files;

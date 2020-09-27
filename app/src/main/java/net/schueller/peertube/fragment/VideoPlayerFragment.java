@@ -232,21 +232,27 @@ public class VideoPlayerFragment extends Fragment implements VideoRendererEventL
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
 
+        boolean bSucess = false;
         if (sharedPref.getBoolean(getString(R.string.pref_torrent_player_key), false)) {
             torrentStatus.setVisibility(View.VISIBLE);
-            String stream = video.getFiles().get(0).getTorrentUrl();
-            Log.v(TAG, "getTorrentUrl : " + video.getFiles().get(0).getTorrentUrl());
-            torrentStream = setupTorrentStream();
-            torrentStream.startStream(stream);
-        } else {
 
+            if (video.getFilesOrStreamingPlaylistFiles().size() > 0) {
+                String stream = video.getFilesOrStreamingPlaylistFiles().get(0).getTorrentUrl();
+                Log.v(TAG, "getTorrentUrl : " + stream);
+                torrentStream = setupTorrentStream();
+                torrentStream.startStream(stream);
+                bSucess = true;
+            }
+        }
+        if ( !bSucess )
+        {
             Integer videoQuality = sharedPref.getInt(getString(R.string.pref_quality_key), 0);
 
             //get video qualities
             /// #
-            if (video.getFiles().size() > 0) {
-                String urlToPlay = video.getFiles().get( 0 ).getFileUrl();
-                for ( File file : video.getFiles() ) {
+            if (video.getFilesOrStreamingPlaylistFiles().size() > 0) {
+                String urlToPlay = video.getFilesOrStreamingPlaylistFiles().get(0).getFileUrl();
+                for (File file : video.getFilesOrStreamingPlaylistFiles()) {
                     // Set quality if it matches
                     if ( file.getResolution().getId().equals( videoQuality ) ) {
                         urlToPlay = file.getFileUrl();
@@ -255,14 +261,19 @@ public class VideoPlayerFragment extends Fragment implements VideoRendererEventL
                 mService.setCurrentStreamUrl( urlToPlay );
                 torrentStatus.setVisibility(View.GONE);
                 startPlayer();
-            } else {
-                stopVideo();
-                Toast.makeText(context, R.string.api_error, Toast.LENGTH_LONG).show();
+                bSucess = true;
             }
         }
-        Log.v(TAG, "end of load Video");
-
-
+        if ( !bSucess )
+        {
+            stopVideo();
+            Toast.makeText(context, R.string.api_error, Toast.LENGTH_LONG).show();
+            Log.v(TAG, "Video not loaded");
+        }
+        else
+        {
+            Log.v(TAG, "Video loaded");
+        }
     }
 
     private void startPlayer() {

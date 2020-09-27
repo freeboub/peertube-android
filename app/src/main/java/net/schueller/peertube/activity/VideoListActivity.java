@@ -352,7 +352,7 @@ public class VideoListActivity extends CommonActivity {
                 if (response.body() != null) {
                     ArrayList<Video> videoList = response.body().getVideoArrayList();
                     if (videoList != null) {
-                        videoAdapter.setData(response.body().getVideoArrayList());
+                        videoAdapter.setData(videoList);
                     }
                 }
 
